@@ -27,7 +27,7 @@ module.exports = {
     'no-return-await': 'error',
     'require-await': 'error',
     'comma-dangle': ['error', 'always-multiline'],
-    'max-len': ['error', { code: 80 }],
+    'max-len': ['error', { code: 100 }],
     'semi': ['error', 'always']
   },
 };
