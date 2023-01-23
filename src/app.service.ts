@@ -5,10 +5,8 @@ import { User } from './entities';
 
 @Injectable()
 export class AppService {
-  @InjectRepository(User)
-  private usersRepository: Repository<User>;
 
-  getHello(): Promise<User[]> {
-    return this.usersRepository.find();
+  getHello(): string {
+    return 'Hello world!';
   }
 }

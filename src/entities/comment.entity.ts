@@ -12,6 +12,6 @@ export class Comment {
   @Column()
   body: string;
 
-  @ManyToOne(type => User, user => user.comments)
-  author: User;
+  // @ManyToOne(type => User, user => user.comments)
+  // author: User;
 }

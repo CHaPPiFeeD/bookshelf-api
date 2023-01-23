@@ -12,6 +12,6 @@ export class Book {
   @Column()
   description: string;
 
-  @ManyToOne(type => User, user => user.books)
-  author: User;
+  // @ManyToOne(type => User, user => user.books)
+  // author: User;
 }
