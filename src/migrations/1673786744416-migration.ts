@@ -8,8 +8,7 @@ export class migration1673786744416 implements MigrationInterface {
         "nickname" character varying NOT NULL,
         "password" character varying NOT NULL, 
         "is_banned" boolean NOT NULL DEFAULT false, 
-        "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
-        CONSTRAINT "PK_ae8fef845fe336b069f4d227609" PRIMARY KEY ("user_guid")
+        "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
       )`);
   }
 
