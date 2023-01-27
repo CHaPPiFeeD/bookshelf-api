@@ -1,5 +1,4 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
-import { User } from '.';
 
 @Entity()
 export class Comment {
