@@ -1,10 +1,11 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Book } from './book.entity';
+import { Comment } from './comment.entity';
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  user_guid: string;
+  userGuid: string;
 
   @Column('varchar', { length: 16 })
   nickname: string;
@@ -13,11 +14,14 @@ export class User {
   password: string;
 
   @Column('boolean', { default: false })
-  is_banned: boolean;
+  isBanned: boolean;
 
   @Column('timestamp with time zone', { default: () => 'CURRENT_TIMESTAMP' })
-  created_at: string;
+  createdAt: string;
 
   @OneToMany(() => Book, book => book.author)
   books: Book;
+
+  @OneToMany(() => Comment, comment => comment.author)
+  comments: Comment;
 }
