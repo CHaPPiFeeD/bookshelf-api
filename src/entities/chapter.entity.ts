@@ -1,13 +1,17 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Book } from './book.entity';
 
 @Entity()
 export class Chapter {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column()
+  @Column('varchar', { length: 128 })
   title: string;
 
-  @Column()
+  @Column('varchar')
   body: string;
+
+  @ManyToOne(() => Book, book => book.chapters)
+  book: Book;
 }

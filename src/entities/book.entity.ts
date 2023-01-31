@@ -1,17 +1,29 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { User } from '.';
+import { Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Chapter } from './chapter.entity';
+import { Genre } from './genre.entity';
+import { Tag } from './tag.entity';
+import { User } from './user.entity';
 
 @Entity()
 export class Book {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: string;
 
-  @Column()
+  @Column('varchar', { nullable: false })
   name: string;
 
-  @Column()
+  @Column('varchar')
   description: string;
 
-  // @ManyToOne(type => User, user => user.books)
-  // author: User;
+  @ManyToOne(() => User, user => user.books)
+  author: User;
+
+  @OneToMany(() => Chapter, chapter => chapter.book)
+  chapters: Chapter;
+
+  @ManyToMany(() => Genre, genre => genre.books)
+  genres: Genre;
+
+  @ManyToMany(() => Tag, tag => tag.books)
+  tags: Tag;
 }

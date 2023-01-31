@@ -1,19 +1,27 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Book } from './book.entity';
+import { Comment } from './comment.entity';
 
 @Entity()
 export class User {
-  @PrimaryColumn({ type: 'varchar' })
-  user_guid: string;
+  @PrimaryGeneratedColumn('uuid')
+  userGuid: string;
 
-  @Column({ type: 'varchar' })
+  @Column('varchar', { length: 16 })
   nickname: string;
 
-  @Column({ type: 'varchar' })
+  @Column('varchar')
   password: string;
 
-  @Column({ type: 'boolean', default: false })
-  is_banned: boolean;
+  @Column('boolean', { default: false })
+  isBanned: boolean;
 
-  @Column({ type: 'timestamp with time zone', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: string;
+  @Column('timestamp with time zone', { default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: string;
+
+  @OneToMany(() => Book, book => book.author)
+  books: Book;
+
+  @OneToMany(() => Comment, comment => comment.author)
+  comments: Comment;
 }
