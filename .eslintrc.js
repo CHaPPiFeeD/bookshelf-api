@@ -5,7 +5,7 @@ module.exports = {
     tsconfigRootDir: __dirname,
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint/eslint-plugin'],
+  plugins: ['@typescript-eslint/eslint-plugin', 'eslint-plugin-import'],
   extends: [
     'plugin:@typescript-eslint/recommended',
   ],
@@ -28,6 +28,8 @@ module.exports = {
     'require-await': 'error',
     'comma-dangle': ['error', 'always-multiline'],
     'max-len': ['error', { code: 100 }],
+    'import/newline-after-import': ['error', { count: 2 }],
+    'eol-last': ['error', 'always'],
     'semi': ['error', 'always']
   },
 };

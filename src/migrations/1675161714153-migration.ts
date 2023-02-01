@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
+
 export class migration1675161714153 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {

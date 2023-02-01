@@ -1,6 +1,7 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Book } from './book.entity';
 
+
 @Entity()
 export class Chapter {
   @PrimaryGeneratedColumn('increment')

@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
+
 export class migration1675154529120 implements MigrationInterface {
   name = 'migration1675154529120';
 
