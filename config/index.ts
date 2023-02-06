@@ -7,4 +7,17 @@ export default () => ({
     password: process.env.DB_PASSWORD,
     name: process.env.DB_NAME,
   },
+  jwt: {
+    secret: process.env.JWT_SECRET || '123456QWERTY',
+  },
+  mail: {
+    host: process.env.MAIL_HOST,
+    auth: {
+      user: process.env.MAIL_USER,
+      pass: process.env.MAIL_PASS,
+    },
+  },
+  client: {
+    host: process.env.CLIENT_HOST || 'http://localhost:3000',
+  },
 });

@@ -9,13 +9,19 @@ export class User {
   userGuid: string;
 
   @Column('varchar', { length: 16 })
-  nickname: string;
+  name: string;
+
+  @Column('varchar', { nullable: true, unique: true })
+  email: string;
 
   @Column('varchar')
   password: string;
 
   @Column('boolean', { default: false })
   isBanned: boolean;
+
+  @Column('boolean', { nullable: true, default: false })
+  isVerified: boolean;
 
   @Column('timestamp with time zone', { default: () => 'CURRENT_TIMESTAMP' })
   createdAt: string;
