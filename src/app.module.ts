@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import configuration from '../config';
 import { AuthModule } from './modules/auth/auth.module';
 import { MailModule } from './modules/mail/mail.module';
+import { JwtModule } from './modules/jwt/jwt.module';
 
 
 @Module({
@@ -31,6 +32,7 @@ import { MailModule } from './modules/mail/mail.module';
 
     AuthModule,
     MailModule,
+    JwtModule,
   ],
   controllers: [AppController],
   providers: [AppService],

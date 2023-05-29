@@ -1,5 +1,4 @@
-import { IsEmail, IsNotEmpty } from 'class-validator';
-import { IsString, Length, Matches } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, Length, Matches } from 'class-validator';
 
 
 export class SignUpBodyDto {

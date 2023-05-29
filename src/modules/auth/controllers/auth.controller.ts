@@ -1,9 +1,10 @@
+import { Controller, Inject, Post, Body, Query } from '@nestjs/common';
+
 import { AuthService } from '../services/auth.service';
 import { SignUpBodyDto } from '../dto/sign-up.dto';
-import { Controller, Inject, Post, Body, Query } from '@nestjs/common';
 import { VerifyQueryDto } from '../dto/verify.dto';
 import { SignInBodyDto } from '../dto/sign-in.dto';
-import { SignInResponse } from '../types';
+import { SignInResponseType } from '../types';
 
 
 @Controller('/api/auth')
@@ -22,7 +23,7 @@ export class AuthController {
   }
 
   @Post('/sign-in')
-  signIn(@Body() body: SignInBodyDto): Promise<SignInResponse> {
+  signIn(@Body() body: SignInBodyDto): Promise<SignInResponseType> {
     return this.authService.signIn(body);
   }
 }
