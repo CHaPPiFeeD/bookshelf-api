@@ -20,7 +20,7 @@ export class MailService {
       subject: 'MAIL CONFIRMATION',
       template: './confirmation',
       context: {
-        url: `${this.configService.get('client.host')}/?inviteToken=${inviteToken}`,
+        url: `${this.configService.get('client.host')}/verify?inviteToken=${inviteToken}`,
       },
     });
   }
