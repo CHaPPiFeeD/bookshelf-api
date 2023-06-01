@@ -2,7 +2,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { SendConfirmationMail } from '../types';
+import { SendConfirmationMail } from './types';
 
 
 @Injectable()

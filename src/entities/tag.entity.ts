@@ -11,5 +11,5 @@ export class Tag {
   name: string;
 
   @ManyToMany(() => Book, book => book.tags)
-  books: Book;
+  books: Book[];
 }

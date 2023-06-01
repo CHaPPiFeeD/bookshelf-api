@@ -1,28 +1,24 @@
-import { HttpException, Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 
-import { User } from '../../../entities/user.entity';
-import { MailService } from '../../mail/services/mail.service';
-import { SignUpBodyDto } from '../dto/sign-up.dto';
-import { VerifyQueryDto } from '../dto/verify.dto';
-import { SignInBodyDto } from '../dto/sign-in.dto';
-import { InviteTokenType, RefreshTokenResType, SignInResType } from '../types';
-import { JwtService } from '../../jwt/services/jwt.service';
-import { RefreshToken } from 'src/entities/refresh-token.entity';
-import { RefreshTokenDto } from '../dto/refresh-token.dto';
-import { CreateException } from '../../../exceptions/exception';
-import { API_ERROR_CODES } from '../../../constants/error-codes';
+import { User } from '../../entities/user.entity';
+import { MailService } from '../mail/mail.service';
+import { SignUpBodyDto } from './dto/sign-up.dto';
+import { VerifyQueryDto } from './dto/verify.dto';
+import { SignInBodyDto } from './dto/sign-in.dto';
+import { InviteTokenType, RefreshTokenResType, SignInResType } from './types';
+import { JwtService } from '../jwt/jwt.service';
+import { RefreshToken } from '../../entities/refresh-token.entity';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { CreateException } from '../../exceptions/exception';
+import { API_ERROR_CODES } from '../../constants/error-codes';
 
 
 @Injectable()
 export class AuthService {
   private logger = new Logger(AuthService.name);
-
-  @Inject(ConfigService)
-  private configService: ConfigService;
 
   @Inject(MailService)
   private mailService: MailService;
@@ -38,8 +34,8 @@ export class AuthService {
 
 
   async signUp(body: SignUpBodyDto): Promise<void> {
-    const foundUser = await this.userRepository.findOneBy({ email: body.email });
-    if (foundUser)
+    const candidate = await this.userRepository.findOneBy({ email: body.email });
+    if (candidate)
       throw new CreateException(API_ERROR_CODES.USER_ALREADY_REGISTERED);
 
     const password = await bcrypt.hash(body.password, 8);
@@ -66,7 +62,7 @@ export class AuthService {
     const { email }: InviteTokenType = this.jwtService.verifyToken(inviteToken);
 
     const user = await this.userRepository.findOneBy({ email: email });
-    if (!user) throw new HttpException('User not found', 404);
+    if (!user) throw new CreateException(API_ERROR_CODES.USER_NOT_FOUND);
 
     await this.userRepository.update(
       { userGuid: user.userGuid },
@@ -76,10 +72,11 @@ export class AuthService {
 
   async signIn(body: SignInBodyDto): Promise<SignInResType> {
     const user = await this.userRepository.findOneBy({ email: body.email });
-    if (!user) throw new HttpException('User not found', 404);
+    if (!user) throw new CreateException(API_ERROR_CODES.USER_NOT_FOUND);
 
     const isValidPassword = await bcrypt.compare(body.password, user.password);
-    if (!isValidPassword) throw new HttpException('User wrong password', 400);
+    if (!isValidPassword)
+      throw new CreateException(API_ERROR_CODES.USER_WRONG_PASSWORD);
 
     const accessToken = this.jwtService.generateAccessToken({
       userGuid: user.userGuid,
@@ -101,10 +98,13 @@ export class AuthService {
   }
 
   async refreshToken({ refreshToken }: RefreshTokenDto): Promise<RefreshTokenResType> {
-    const session = await this.refreshTokenRepository.findOneBy({
-      refreshToken,
+    const session = await this.refreshTokenRepository.findOne({
+      where: {
+        refreshToken,
+      },
+      select: ['id', 'userGuid', 'expiresIn'],
     });
-    if (!session) throw new HttpException('Session not found', 401);
+    if (!session) throw new CreateException(API_ERROR_CODES.SESSION_NOT_FOUND);
     await this.refreshTokenRepository.delete({ id: session.id });
 
     await this.jwtService.verifyToken(refreshToken);
@@ -119,7 +119,7 @@ export class AuthService {
 
     const refreshTokenPayment = await this.refreshTokenRepository.create({
       userGuid: session.userGuid,
-      refreshToken,
+      refreshToken: newRefreshToken,
       expiresIn: 1000 * 60 * 60 * 24 * 7,
     });
 

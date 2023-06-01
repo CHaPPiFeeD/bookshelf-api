@@ -19,12 +19,12 @@ export class Book {
   @ManyToOne(() => User, user => user.books)
   author: User;
 
-  @OneToMany(() => Chapter, chapter => chapter.book)
-  chapters: Chapter;
+  @OneToMany(() => Chapter, chapter => chapter.book, { cascade: true })
+  chapters: Chapter[];
 
   @ManyToMany(() => Genre, genre => genre.books)
-  genres: Genre;
+  genres: Genre[];
 
   @ManyToMany(() => Tag, tag => tag.books)
-  tags: Tag;
+  tags: Tag[];
 }

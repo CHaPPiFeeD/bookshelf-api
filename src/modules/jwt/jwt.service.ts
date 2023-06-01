@@ -1,8 +1,10 @@
-import { HttpException, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as jwt from 'jsonwebtoken';
 
-import { AccessTokenDataType, InviteTokenDataType } from '../types';
+import { AccessTokenDataType, InviteTokenDataType } from './types';
+import { CreateException } from '../../exceptions/exception';
+import { API_ERROR_CODES } from '../../constants/error-codes';
 
 
 @Injectable()
@@ -12,19 +14,19 @@ export class JwtService {
 
   generateInviteToken(data: InviteTokenDataType): string {
     return jwt.sign(data, this.configService.get('jwt.secret'), {
-      expiresIn: 1000 * 60 * 60 * 24, // 1d
+      expiresIn: this.configService.get('jwt.inviteTokenLifeTime'),
     });
   }
 
   generateAccessToken(data: AccessTokenDataType): string {
     return jwt.sign(data, this.configService.get('jwt.secret'), {
-      expiresIn: 1000 * 60 * 60, // 1h
+      expiresIn: this.configService.get('jwt.accessTokenLifeTime'),
     });
   }
 
   generateRefreshToken(data: AccessTokenDataType): string {
     return jwt.sign(data, this.configService.get('jwt.secret'), {
-      expiresIn: 1000 * 60 * 60 * 24 * 7, // 7d
+      expiresIn: this.configService.get('jwt.refreshTokenLifeTime'),
     });
   }
 
@@ -33,7 +35,7 @@ export class JwtService {
       token,
       this.configService.get('jwt.secret'),
       (error, decoded) => {
-        if (error) throw new HttpException('Token is invalid or expired', 401);
+        if (error) throw new CreateException(API_ERROR_CODES.INVALID_TOKEN);
         return decoded;
       }
     );

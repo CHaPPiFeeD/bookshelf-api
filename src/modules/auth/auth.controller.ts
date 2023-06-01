@@ -1,11 +1,11 @@
 import { Controller, Inject, Post, Body, Query } from '@nestjs/common';
 
-import { AuthService } from '../services/auth.service';
-import { SignUpBodyDto } from '../dto/sign-up.dto';
-import { VerifyQueryDto } from '../dto/verify.dto';
-import { SignInBodyDto } from '../dto/sign-in.dto';
-import { RefreshTokenDto } from '../dto/refresh-token.dto';
-import { RefreshTokenResType, SignInResType } from '../types';
+import { AuthService } from './auth.service';
+import { SignUpBodyDto } from './dto/sign-up.dto';
+import { VerifyQueryDto } from './dto/verify.dto';
+import { SignInBodyDto } from './dto/sign-in.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { RefreshTokenResType, SignInResType } from './types';
 
 
 @Controller('/api/auth')

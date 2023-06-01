@@ -27,8 +27,8 @@ export class User {
   createdAt: string;
 
   @OneToMany(() => Book, book => book.author)
-  books: Book;
+  books: Book[];
 
   @OneToMany(() => Comment, comment => comment.author)
-  comments: Comment;
+  comments: Comment[];
 }

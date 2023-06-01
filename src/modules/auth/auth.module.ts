@@ -3,10 +3,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { User } from '../../entities/user.entity';
 import { MailModule } from '../mail/mail.module';
-import { AuthController } from './controllers/auth.controller';
-import { AuthService } from './services/auth.service';
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
 import { JwtModule } from '../jwt/jwt.module';
-import { RefreshToken } from 'src/entities/refresh-token.entity';
+import { RefreshToken } from '../../entities/refresh-token.entity';
 
 
 @Module({

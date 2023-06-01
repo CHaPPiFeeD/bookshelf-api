@@ -2,12 +2,12 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { resolve } from 'path';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+
 import configuration from '../config';
 import { AuthModule } from './modules/auth/auth.module';
 import { MailModule } from './modules/mail/mail.module';
 import { JwtModule } from './modules/jwt/jwt.module';
+import { BookModule } from './modules/book/book.module';
 
 
 @Module({
@@ -33,8 +33,9 @@ import { JwtModule } from './modules/jwt/jwt.module';
     AuthModule,
     MailModule,
     JwtModule,
+    BookModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule { }

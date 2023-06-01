@@ -2,8 +2,9 @@ import { Module } from '@nestjs/common';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MailService } from './services/mail.service';
 import { join } from 'path';
+
+import { MailService } from './mail.service';
 
 
 @Module({
