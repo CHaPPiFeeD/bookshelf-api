@@ -1,4 +1,4 @@
-import { Controller, Inject, Post, Body, Query } from '@nestjs/common';
+import { Controller, Inject, Post, Body, Query, Request } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
 import { SignUpBodyDto } from './dto/sign-up.dto';
@@ -6,6 +6,7 @@ import { VerifyQueryDto } from './dto/verify.dto';
 import { SignInBodyDto } from './dto/sign-in.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RefreshTokenResType, SignInResType } from './types';
+import { IRequest } from 'src/interfaces';
 
 
 @Controller('/api/auth')
@@ -29,7 +30,10 @@ export class AuthController {
   }
 
   @Post('/refresh-token')
-  refreshToken(@Body() body: RefreshTokenDto): Promise<RefreshTokenResType> {
+  refreshToken(
+    @Body() body: RefreshTokenDto,
+    @Request() req: IRequest
+  ): Promise<RefreshTokenResType> {
     return this.authService.refreshToken(body);
   }
 }

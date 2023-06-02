@@ -1,4 +1,4 @@
-export type InviteTokenDataType = {
+export type InviteTokenPayloadType = {
   email: string;
 }
 

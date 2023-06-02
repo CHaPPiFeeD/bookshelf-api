@@ -1,19 +1,19 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
-import { User } from '../../entities/user.entity';
 import { MailService } from '../mail/mail.service';
 import { SignUpBodyDto } from './dto/sign-up.dto';
 import { VerifyQueryDto } from './dto/verify.dto';
 import { SignInBodyDto } from './dto/sign-in.dto';
-import { InviteTokenType, RefreshTokenResType, SignInResType } from './types';
+import { RefreshTokenResType, SignInResType } from './types';
 import { JwtService } from '../jwt/jwt.service';
-import { RefreshToken } from '../../entities/refresh-token.entity';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { CreateException } from '../../exceptions/exception';
 import { API_ERROR_CODES } from '../../constants/error-codes';
+import { UserRepository } from '../../repositories/user.repository';
+import { RefreshTokenRepository } from '../../repositories/refresh-token.repository';
+import { InviteTokenPayloadType } from '../jwt/types';
 
 
 @Injectable()
@@ -23,108 +23,91 @@ export class AuthService {
   @Inject(MailService)
   private mailService: MailService;
 
-  @InjectRepository(User)
-  private userRepository: Repository<User>;
+  @InjectRepository(UserRepository)
+  private userRepository: UserRepository;
 
-  @InjectRepository(RefreshToken)
-  private refreshTokenRepository: Repository<RefreshToken>;
+  @InjectRepository(RefreshTokenRepository)
+  private refreshTokenRepository: RefreshTokenRepository;
 
   @Inject(JwtService)
   private jwtService: JwtService;
 
 
   async signUp(body: SignUpBodyDto): Promise<void> {
-    const candidate = await this.userRepository.findOneBy({ email: body.email });
+    const { name, email, password } = body;
+
+    const candidate = await this.userRepository.findOneBy({ email });
     if (candidate)
       throw new CreateException(API_ERROR_CODES.USER_ALREADY_REGISTERED);
 
-    const password = await bcrypt.hash(body.password, 8);
+    const hashedPassword = await bcrypt.hash(password, 8);
 
-    const inviteToken = this.jwtService.generateInviteToken({
-      email: body.email,
+    const inviteToken = this.jwtService.generateInviteToken({ email });
+    await this.mailService.sendMailConfirmation({ email, inviteToken });
+
+    await this.userRepository.createUnverified({
+      name,
+      password: hashedPassword,
+      email,
     });
-
-    await this.mailService.sendMailConfirmation({
-      email: body.email,
-      inviteToken,
-    });
-
-    const user = this.userRepository.create({
-      name: body.name,
-      password,
-      email: body.email,
-    });
-
-    this.userRepository.save(user);
   }
 
   async verify({ inviteToken }: VerifyQueryDto): Promise<void> {
-    const { email }: InviteTokenType = this.jwtService.verifyToken(inviteToken);
+    const { email }: InviteTokenPayloadType = this.jwtService.verifyToken(inviteToken);
 
-    const user = await this.userRepository.findOneBy({ email: email });
+    const user = await this.userRepository.findOneBy({ email });
     if (!user) throw new CreateException(API_ERROR_CODES.USER_NOT_FOUND);
 
-    await this.userRepository.update(
-      { userGuid: user.userGuid },
-      { isVerified: true }
-    );
+    await this.userRepository.confirmVerification({ userGuid: user.userGuid });
   }
 
   async signIn(body: SignInBodyDto): Promise<SignInResType> {
-    const user = await this.userRepository.findOneBy({ email: body.email });
+    const { email, password } = body;
+
+    const user = await this.userRepository.findOneBy({ email });
     if (!user) throw new CreateException(API_ERROR_CODES.USER_NOT_FOUND);
+    const { userGuid } = user;
 
-    const isValidPassword = await bcrypt.compare(body.password, user.password);
-    if (!isValidPassword)
-      throw new CreateException(API_ERROR_CODES.USER_WRONG_PASSWORD);
+    this.comparePassword(password, user.password);
 
-    const accessToken = this.jwtService.generateAccessToken({
-      userGuid: user.userGuid,
-    });
+    const accessToken = this.jwtService.generateAccessToken({ userGuid });
+    const refreshToken = this.jwtService.generateRefreshToken({ userGuid });
 
-    const refreshToken = this.jwtService.generateRefreshToken({
-      userGuid: user.userGuid,
-    });
-
-    const refreshTokenPayment = await this.refreshTokenRepository.create({
-      userGuid: user.userGuid,
-      refreshToken,
-      expiresIn: 1000 * 60 * 60 * 24 * 7,
-    });
-
-    await this.refreshTokenRepository.save(refreshTokenPayment);
+    await this.refreshTokenRepository.updateOrCreateAndSave({ userGuid, refreshToken });
 
     return { accessToken, refreshToken };
   }
 
   async refreshToken({ refreshToken }: RefreshTokenDto): Promise<RefreshTokenResType> {
+    await this.jwtService.verifyToken(refreshToken);
+
     const session = await this.refreshTokenRepository.findOne({
-      where: {
-        refreshToken,
-      },
+      where: { refreshToken },
       select: ['id', 'userGuid', 'expiresIn'],
     });
     if (!session) throw new CreateException(API_ERROR_CODES.SESSION_NOT_FOUND);
     await this.refreshTokenRepository.delete({ id: session.id });
 
-    await this.jwtService.verifyToken(refreshToken);
+    const { userGuid } = session;
 
-    const newAccessToken = this.jwtService.generateAccessToken({
-      userGuid: session.userGuid,
-    });
+    const newAccessToken = this.jwtService.generateAccessToken({ userGuid });
+    const newRefreshToken = this.jwtService.generateRefreshToken({ userGuid });
 
-    const newRefreshToken = this.jwtService.generateRefreshToken({
-      userGuid: session.userGuid,
-    });
-
-    const refreshTokenPayment = await this.refreshTokenRepository.create({
-      userGuid: session.userGuid,
-      refreshToken: newRefreshToken,
-      expiresIn: 1000 * 60 * 60 * 24 * 7,
-    });
-
-    await this.refreshTokenRepository.save(refreshTokenPayment);
+    await this.refreshTokenRepository.update(
+      { userGuid },
+      { refreshToken: newRefreshToken }
+    );
 
     return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+  }
+
+  private async comparePassword(
+    enteredPassword: string,
+    hashedPassword: string,
+  ): Promise<void> {
+    const isValidPassword = await bcrypt.compare(enteredPassword, hashedPassword);
+
+    if (!isValidPassword)
+      throw new CreateException(API_ERROR_CODES.USER_WRONG_PASSWORD);
   }
 }

@@ -3,9 +3,6 @@ export type SignInResType = {
   refreshToken: string,
 }
 
-export type InviteTokenType = {
-  email: string,
-}
 
 export type RefreshTokenResType = {
   accessToken: string,

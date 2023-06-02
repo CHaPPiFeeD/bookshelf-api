@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as jwt from 'jsonwebtoken';
 
-import { AccessTokenDataType, InviteTokenDataType } from './types';
+import { AccessTokenDataType, InviteTokenPayloadType } from './types';
 import { CreateException } from '../../exceptions/exception';
 import { API_ERROR_CODES } from '../../constants/error-codes';
 
@@ -12,7 +12,7 @@ export class JwtService {
   @Inject(ConfigService)
   private configService: ConfigService;
 
-  generateInviteToken(data: InviteTokenDataType): string {
+  generateInviteToken(data: InviteTokenPayloadType): string {
     return jwt.sign(data, this.configService.get('jwt.secret'), {
       expiresIn: this.configService.get('jwt.inviteTokenLifeTime'),
     });

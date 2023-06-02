@@ -10,7 +10,7 @@ export default () => ({
   jwt: {
     secret: process.env.JWT_SECRET || '123456QWERTY',
     inviteTokenLifeTime: process.env.INVITE_TOKEN_LIFE_TIME || 1000 * 60 * 60 * 24, // 1d
-    accessTokenLifeTime: process.env.ACCESS_TOKEN_LIFE_TIME || 1000 * 60 * 60, // 1h
+    accessTokenLifeTime: process.env.ACCESS_TOKEN_LIFE_TIME || 1000 * 60 * 15, // 15m
     refreshTokenLifeTime: process.env.REFRESH_TOKEN_LIFE_TIME || 1000 * 60 * 60 * 24 * 7, // 7d
   },
   mail: {
