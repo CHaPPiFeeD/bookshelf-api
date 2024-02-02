@@ -11,9 +11,10 @@ import { JwtService } from '../jwt/jwt.service';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { CreateException } from '../../exceptions/exception';
 import { API_ERROR_CODES } from '../../constants/error-codes';
-import { UserRepository } from '../../repositories/user.repository';
-import { RefreshTokenRepository } from '../../repositories/refresh-token.repository';
 import { InviteTokenPayloadType } from '../jwt/types';
+import { User } from 'src/entities/user.entity';
+import { Repository } from 'typeorm';
+import { RefreshToken } from 'src/entities/refresh-token.entity';
 
 
 @Injectable()
@@ -23,11 +24,11 @@ export class AuthService {
   @Inject(MailService)
   private mailService: MailService;
 
-  @InjectRepository(UserRepository)
-  private userRepository: UserRepository;
+  @InjectRepository(User)
+  private userRepository: Repository<User>;
 
-  @InjectRepository(RefreshTokenRepository)
-  private refreshTokenRepository: RefreshTokenRepository;
+  @InjectRepository(RefreshToken)
+  private refreshTokenRepository: Repository<RefreshToken>;
 
   @Inject(JwtService)
   private jwtService: JwtService;
@@ -45,11 +46,15 @@ export class AuthService {
     const inviteToken = this.jwtService.generateInviteToken({ email });
     await this.mailService.sendMailConfirmation({ email, inviteToken });
 
-    await this.userRepository.createUnverified({
+    const entity = this.userRepository.create({
       name,
-      password: hashedPassword,
       email,
+      password: hashedPassword,
+      isBanned: false,
+      isVerified: false,
     });
+
+    await this.userRepository.save(entity);
   }
 
   async verify({ inviteToken }: VerifyQueryDto): Promise<void> {
@@ -58,7 +63,7 @@ export class AuthService {
     const user = await this.userRepository.findOneBy({ email });
     if (!user) throw new CreateException(API_ERROR_CODES.USER_NOT_FOUND);
 
-    await this.userRepository.confirmVerification({ userGuid: user.userGuid });
+    await this.userRepository.update({ userGuid: user.userGuid }, { isVerified: true });
   }
 
   async signIn(body: SignInBodyDto): Promise<SignInResType> {
@@ -66,14 +71,23 @@ export class AuthService {
 
     const user = await this.userRepository.findOneBy({ email });
     if (!user) throw new CreateException(API_ERROR_CODES.USER_NOT_FOUND);
+
     const { userGuid } = user;
 
-    this.comparePassword(password, user.password);
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) throw new CreateException(API_ERROR_CODES.USER_WRONG_PASSWORD);
 
     const accessToken = this.jwtService.generateAccessToken({ userGuid });
     const refreshToken = this.jwtService.generateRefreshToken({ userGuid });
 
-    await this.refreshTokenRepository.updateOrCreateAndSave({ userGuid, refreshToken });
+    const isDefined = await this.refreshTokenRepository.findOneBy({ userGuid });
+    if (isDefined) {
+      await this.refreshTokenRepository.update({ userGuid }, { refreshToken });
+    } else {
+      const refreshTokenData = this.refreshTokenRepository.create({ userGuid, refreshToken });
+      const isCreated = await this.refreshTokenRepository.save(refreshTokenData);
+      if (!isCreated) throw new CreateException(API_ERROR_CODES.USER_NOT_FOUND);
+    }
 
     return { accessToken, refreshToken };
   }
@@ -83,10 +97,9 @@ export class AuthService {
 
     const session = await this.refreshTokenRepository.findOne({
       where: { refreshToken },
-      select: ['id', 'userGuid', 'expiresIn'],
+      select: ['id', 'userGuid'],
     });
     if (!session) throw new CreateException(API_ERROR_CODES.SESSION_NOT_FOUND);
-    await this.refreshTokenRepository.delete({ id: session.id });
 
     const { userGuid } = session;
 
@@ -99,15 +112,5 @@ export class AuthService {
     );
 
     return { accessToken: newAccessToken, refreshToken: newRefreshToken };
-  }
-
-  private async comparePassword(
-    enteredPassword: string,
-    hashedPassword: string,
-  ): Promise<void> {
-    const isValidPassword = await bcrypt.compare(enteredPassword, hashedPassword);
-
-    if (!isValidPassword)
-      throw new CreateException(API_ERROR_CODES.USER_WRONG_PASSWORD);
   }
 }

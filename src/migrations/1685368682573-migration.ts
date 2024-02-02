@@ -9,7 +9,6 @@ export class migration1685368682573 implements MigrationInterface {
           "id" SERIAL NOT NULL,
           "userGuid" uuid NOT NULL,
           "refreshToken" character varying NOT NULL,
-          "expiresIn" integer NOT NULL,
           CONSTRAINT "PK_b575dd3c21fb0831013c909e7fe" PRIMARY KEY ("id")
         )`);
     

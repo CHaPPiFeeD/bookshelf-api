@@ -11,7 +11,4 @@ export class RefreshToken {
 
   @Column('varchar')
   refreshToken: string;
-
-  @Column('int')
-  expiresIn: number;
 }

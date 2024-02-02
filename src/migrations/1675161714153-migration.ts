@@ -6,11 +6,6 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 export class migration1675161714153 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`INSERT INTO public.user
-      (nickname, password)
-      VALUES ('Chapka', '123456')
-    `);
-
     await queryRunner.query(`INSERT INTO genre (name) VALUES ('Комедія')`);
     await queryRunner.query(`INSERT INTO genre (name) VALUES ('Романтика')`);
     await queryRunner.query(`INSERT INTO genre (name) VALUES ('Фентезі')`);
