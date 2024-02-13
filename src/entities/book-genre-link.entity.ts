@@ -2,16 +2,13 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 
 @Entity()
-export class Chapter {
+export class BookGenreLink {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column('varchar', { length: 128 })
-  title: string;
-
-  @Column('varchar')
-  body: string;
+  @Column('uuid')
+  book_id: string;
 
   @Column('int')
-  book_id: number;
+  genre_id: number;
 }

@@ -7,8 +7,8 @@ export class RefreshToken {
   id: number;
   
   @Column('uuid')
-  userGuid: string;
+  user_id: string;
 
   @Column('varchar')
-  refreshToken: string;
+  refresh_token: string;
 }

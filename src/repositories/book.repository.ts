@@ -1,24 +1,43 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 import { Book } from '../entities/book.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 
 @Injectable()
 export class BookRepository extends Repository<Book> {
-  constructor(private dataSource: DataSource) {
-    super(Book, dataSource.createEntityManager());
+  @InjectRepository(Book)
+  private bookRepository: Repository<Book>;
+
+  getAll(): Promise<any[]> {
+    return this.bookRepository
+      .createQueryBuilder('b')
+      .select([
+        'b.id as id',
+        'b.name as name',
+        'b.description as description',
+      ])
+      .getRawMany();
   }
 
-  async getAll(): Promise<Book[]> {
-    const data = await this.find({
-      select: {
-        id: true,
-        name: true,
-        description: true,
-      },
-    });
+  getOne(id: number): Promise<any> {
+    return this.bookRepository
+      .createQueryBuilder('b')
+      .select([
+        'b.id',
+        'b.name',
+        'b.description',
+        'u.name as author_name',
+      ])
+      .where('b.id = :id')
+      .leftJoin('user', 'u', 'u.id = b.user_id')
+      .setParameters({ id })
+      .getRawOne();
+  }
 
-    return data;
+  createAndSave(data: any): Promise<any> {
+    const entity = this.bookRepository.create(data);
+    return this.bookRepository.save(entity);
   }
 }

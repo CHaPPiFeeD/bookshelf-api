@@ -1,25 +1,16 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-
-import { Book } from '../../entities/book.entity';
+import { Module } from '@nestjs/common';
 import { BookService } from './book.service';
 import { BookController } from './book.controller';
-import { Chapter } from '../../entities/chapter.entity';
-import { BookRepository } from '../../repositories/book.repository';
-import { CheckAccessTokenMiddleware } from '../../middlewares/check-access-token.middleware';
-import { JwtModule } from '../jwt/jwt.module';
+import { BookRepository } from 'src/repositories/book.repository';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Book } from 'src/entities/book.entity';
 
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Book, Chapter]),
-    JwtModule,
+    TypeOrmModule.forFeature([Book]),
   ],
   controllers: [BookController],
-  providers: [BookService, BookRepository],
+  providers: [BookRepository, BookService],
 })
-export class BookModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(CheckAccessTokenMiddleware).forRoutes('/api/books');
-  }
-}
+export class BookModule {}

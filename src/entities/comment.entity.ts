@@ -1,5 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
-import { User } from './user.entity';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 
 @Entity()
@@ -13,6 +12,6 @@ export class Comment {
   @Column('varchar')
   body: string;
 
-  @ManyToOne(() => User, user => user.comments)
-  author: User;
+  @Column('uuid')
+  user_id: string;
 }

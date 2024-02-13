@@ -4,16 +4,27 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { resolve } from 'path';
 
 import configuration from '../config';
-import { AuthModule } from './modules/auth/auth.module';
 import { MailModule } from './modules/mail/mail.module';
-import { JwtModule } from './modules/jwt/jwt.module';
 import { BookModule } from './modules/book/book.module';
+import { AuthGuard, KeycloakConnectModule, ResourceGuard, RoleGuard, TokenValidation } from 'nest-keycloak-connect';
+import { APP_GUARD } from '@nestjs/core';
+import { User } from './entities/user.entity';
+import { UserCreatingGuard } from './guards/auth.guard';
+import { UserRepository } from './repositories/user.repository';
 
 
 @Module({
   imports: [
     ConfigModule.forRoot({ load: [configuration], isGlobal: true }),
-    
+    KeycloakConnectModule.register({
+      authServerUrl: 'http://localhost:8080',
+      realm: 'bookshelf',
+      clientId: 'bookshelf-client',
+      secret: 'WWbeOqwLvgspDPwHSe24R3cE8qErnihG',
+      tokenValidation: TokenValidation.OFFLINE,
+      logLevels: ['error', 'warn'],
+      useNestLogger: false,
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -29,13 +40,31 @@ import { BookModule } from './modules/book/book.module';
       }),
       inject: [ConfigService],
     }),
+    TypeOrmModule.forFeature([User]),
 
-    AuthModule,
     MailModule,
-    JwtModule,
     BookModule,
+
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    UserRepository,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ResourceGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RoleGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: UserCreatingGuard,
+    },
+  ],
 })
-export class AppModule { }
+export class AppModule {}
