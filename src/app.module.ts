@@ -2,15 +2,19 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { resolve } from 'path';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard, KeycloakConnectModule, ResourceGuard, RoleGuard, TokenValidation } from 'nest-keycloak-connect';
 
 import configuration from '../config';
+import { UserCreatingGuard } from './guards/auth.guard';
+
+import { User } from './entities/user.entity';
+
+import { UserRepository } from './repositories/user/user.repository';
+
+import { UserModule } from './modules/user/user.module';
 import { MailModule } from './modules/mail/mail.module';
 import { BookModule } from './modules/book/book.module';
-import { AuthGuard, KeycloakConnectModule, ResourceGuard, RoleGuard, TokenValidation } from 'nest-keycloak-connect';
-import { APP_GUARD } from '@nestjs/core';
-import { User } from './entities/user.entity';
-import { UserCreatingGuard } from './guards/auth.guard';
-import { UserRepository } from './repositories/user.repository';
 
 
 @Module({
@@ -44,7 +48,7 @@ import { UserRepository } from './repositories/user.repository';
 
     MailModule,
     BookModule,
-
+    UserModule,
   ],
   controllers: [],
   providers: [

@@ -12,7 +12,7 @@ export class User {
   @Column('varchar', { nullable: true, unique: true })
   email: string;
 
-  @Column('boolean', { default: true })
+  @Column('boolean', { default: false })
   is_active: boolean;
 
   @Column('timestamp with time zone', { default: () => 'CURRENT_TIMESTAMP' })

@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { UserRepository } from 'src/repositories/user.repository';
+import { UserRepository } from 'src/repositories/user/user.repository';
 import * as jwt from '../helpers/jwt.helper';
 
 
@@ -28,8 +28,8 @@ export class UserCreatingGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    const { email, name } = request.remote_user;
-    request.user = await this.userRepository.getOrCreateUser({ email, name });
+    const { sub, email, name } = request.remote_user;
+    request.user = await this.userRepository.getOrCreateUser({ id: sub, email, name });
 
     return true;
   }

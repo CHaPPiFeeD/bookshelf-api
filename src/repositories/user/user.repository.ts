@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
+import { UserProfile } from './user.interface';
 
 
 @Injectable()
@@ -24,5 +25,13 @@ export class UserRepository {
 
   public getUserById(id: string): Promise<any> {
     return this.userRepository.findOne({ where: { id } });
+  }
+
+  public getUserProfileById(id: string): Promise<UserProfile> {
+    return this.userRepository.createQueryBuilder('u')
+      .select(['u.id as user_id', 'u.name as user_name', '(SELECT COUNT(b.id) FROM book b WHERE b.user_id = u.id) AS books_count'])
+      .where('u.id = :userId')
+      .setParameters({ userId: id })
+      .getRawOne();
   }
 }
