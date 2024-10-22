@@ -10,7 +10,7 @@ import { UserCreatingGuard } from './guards/auth.guard';
 
 import { User } from './entities/user.entity';
 
-import { UserRepository } from './repositories/user/user.repository';
+import { UserRepository } from './repositories/user.repository';
 
 import { UserModule } from './modules/user/user.module';
 import { MailModule } from './modules/mail/mail.module';

@@ -6,3 +6,8 @@ export interface UserProfile {
     name: string;
   }
 }
+
+export interface UpdateUserProfileData {
+  name: string;
+  description: string;
+}

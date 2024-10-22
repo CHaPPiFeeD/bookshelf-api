@@ -5,7 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { UserRepository } from 'src/repositories/user/user.repository';
+import { UserRepository } from 'src/repositories/user.repository';
 import * as jwt from '../helpers/jwt.helper';
 
 

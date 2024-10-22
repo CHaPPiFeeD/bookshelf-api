@@ -12,6 +12,9 @@ export class User {
   @Column('varchar', { nullable: true, unique: true })
   email: string;
 
+  @Column('varchar', { nullable: true, length: 320 })
+  description: string;
+
   @Column('boolean', { default: false })
   is_active: boolean;
 
