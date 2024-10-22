@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsEmail, IsString } from 'class-validator';
 
 
 export class UpdateUserDto {
@@ -7,4 +7,10 @@ export class UpdateUserDto {
 
   @IsString()
   description: string;
+}
+
+export class GetUsersQueryDto {
+  @IsString()
+  @IsEmail()
+  email: string;
 }

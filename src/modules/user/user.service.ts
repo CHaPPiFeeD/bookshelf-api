@@ -3,13 +3,18 @@ import { API_ERROR_CODES } from 'src/constants/error-codes';
 import { CreateException } from 'src/exceptions/exception';
 import { UserProfile } from 'src/interfaces/user.interface';
 import { UserRepository } from 'src/repositories/user.repository';
-import { UpdateUserDto } from './user.dto';
+import { GetUsersQueryDto, UpdateUserDto } from './user.dto';
+import { User } from 'src/entities/user.entity';
 
 
 @Injectable()
 export class UserService {
   @Inject(UserRepository)
   private userRepository: UserRepository;
+
+  getUsers(filters: GetUsersQueryDto): Promise<User[]> {
+    return this.userRepository.findBy(filters);
+  }
 
   getUser(userId: string): any {
     return this.userRepository.getUserById(userId);

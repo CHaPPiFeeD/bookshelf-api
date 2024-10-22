@@ -1,13 +1,19 @@
-import { Controller, Get, Inject, Param, Put } from '@nestjs/common';
+import { Controller, Get, Inject, Param, Put, Query } from '@nestjs/common';
 import { UserProfile } from 'src/interfaces/user.interface';
 import { UserService } from './user.service';
-import { UpdateUserDto } from './user.dto';
+import { GetUsersQueryDto, UpdateUserDto } from './user.dto';
+import { User } from 'src/entities/user.entity';
 
 
 @Controller('/api/user')
 export class UserController {
   @Inject(UserService)
   private userService: UserService;
+
+  @Get()
+  getUsers(@Query() query: GetUsersQueryDto): Promise<User[]> {
+    return this.userService.getUsers(query);
+  }
 
   @Get(':id')
   getUserProfile(@Param('id') userId: string): Promise<UserProfile> {
