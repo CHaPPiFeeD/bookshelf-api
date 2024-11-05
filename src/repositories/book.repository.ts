@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 
 import { Book } from '../entities/book.entity';
-import { InjectRepository } from '@nestjs/typeorm';
 
 
 @Injectable()
@@ -21,7 +21,7 @@ export class BookRepository extends Repository<Book> {
       .getRawMany();
   }
 
-  getOne(id: number): Promise<any> {
+  getOne(id: number): Promise<BookInfo> {
     return this.bookRepository
       .createQueryBuilder('b')
       .select([
@@ -29,6 +29,7 @@ export class BookRepository extends Repository<Book> {
         'b.name',
         'b.description',
         'u.name as author_name',
+        'COALESCE(b.updated_at, b.created_at) as updated_at',
       ])
       .where('b.id = :id')
       .leftJoin('user', 'u', 'u.id = b.user_id')
@@ -36,8 +37,22 @@ export class BookRepository extends Repository<Book> {
       .getRawOne();
   }
 
-  createAndSave(data: any): Promise<any> {
+  async createAndSave(data: CreateBookData): Promise<void> {
     const entity = this.bookRepository.create(data);
-    return this.bookRepository.save(entity);
+    await this.bookRepository.save(entity);
   }
+}
+
+type BookInfo = {
+  id: string;
+  name: string;
+  description: string;
+  author_name: string;
+  updated_at: string;
+}
+
+type CreateBookData = {
+  name: string;
+  description: string;
+  user_id: string;
 }

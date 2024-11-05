@@ -29,7 +29,7 @@ export class BookController {
   createBook(
     @User() user: UserEntity,
     @Body() body: CreateBookDto
-  ): Promise<Book> {
+  ): Promise<string> {
     return this.bookService.createBook(user, body);
   }
 }

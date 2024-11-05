@@ -18,11 +18,12 @@ export class BookService {
     return this.bookRepository.getAll();
   }
 
-  createBook(user: User, data: CreateBookDto): Promise<Book> {
+  async createBook(user: User, data: CreateBookDto): Promise<string> {
     const { name, description } = data;
     const { id: user_id } = user;
 
-    return this.bookRepository.createAndSave({ name, description, user_id });
+    await this.bookRepository.createAndSave({ name, description, user_id });
+    return 'ok';
   }
 
   getOne(id: number) {
