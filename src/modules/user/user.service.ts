@@ -27,6 +27,9 @@ export class UserService {
   async updateUserProfile(userId: string, data: UpdateUserDto): Promise<void> {
     const candidate = await this.userRepository.countBy({ id: userId });
     if (!candidate) throw new CreateException(API_ERROR_CODES.USER_NOT_FOUND);
-    await this.userRepository.update({ id: userId }, data);
+    await this.userRepository.update(
+      { id: userId },
+      { description: data.description, name: data.name }
+    );
   }
 }

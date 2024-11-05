@@ -7,8 +7,12 @@ import { UserProfile } from '../interfaces/user.interface';
 
 @Injectable()
 export class UserRepository extends Repository<User> {
-  @InjectRepository(User)
-  private userRepository: Repository<User>;
+  constructor(
+    @InjectRepository(User)
+    private userRepository: Repository<User>
+  ) {
+    super(userRepository.target, userRepository.manager, userRepository.queryRunner);
+  }
 
   public async getOrCreateUser(data) {
     const candidate = await this.userRepository.findOne({
@@ -29,7 +33,12 @@ export class UserRepository extends Repository<User> {
 
   public getUserProfileById(id: string): Promise<UserProfile> {
     return this.userRepository.createQueryBuilder('u')
-      .select(['u.id as user_id', 'u.name as user_name', '(SELECT COUNT(b.id) FROM book b WHERE b.user_id = u.id) AS books_count'])
+      .select([
+        'u.id as id',
+        'u.name as name',
+        'u.description as description',
+        '(SELECT COUNT(b.id) FROM book b WHERE b.user_id = u.id) AS books_count',
+      ])
       .where('u.id = :userId')
       .setParameters({ userId: id })
       .getRawOne();
