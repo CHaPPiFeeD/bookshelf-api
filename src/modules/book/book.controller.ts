@@ -1,11 +1,12 @@
-import { Controller, Inject, Get, Body, Post, Param } from '@nestjs/common';
+import { Controller, Inject, Get, Body, Post, Param, Query } from '@nestjs/common';
 
 import { BookService } from './book.service';
 import { Book } from '../../entities/book.entity';
-import { CreateBookDto } from './dto/create-book.dto';
+import { CreateBookDto, GetAllBooksQueryDto } from './book.dto';
 import { Unprotected } from 'nest-keycloak-connect';
 import { User } from 'src/decorators/user.decorator';
 import { User as UserEntity } from '../../entities/user.entity';
+import { BookInfo } from 'src/repositories/book.repository';
 
 
 @Controller('/api/books')
@@ -15,8 +16,8 @@ export class BookController {
 
   @Unprotected()
   @Get()
-  getAll(): Promise<Book[]> {
-    return this.bookService.getAll();
+  getAll(@Query() params): Promise<BookInfo[]> {
+    return this.bookService.getAll(params);
   }
 
   @Unprotected()

@@ -3,6 +3,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { Book } from '../entities/book.entity';
+import { GetAllBooksQueryDto } from 'src/modules/book/book.dto';
 
 
 @Injectable()
@@ -10,18 +11,33 @@ export class BookRepository extends Repository<Book> {
   @InjectRepository(Book)
   private bookRepository: Repository<Book>;
 
-  getAll(): Promise<any[]> {
-    return this.bookRepository
+  getAll(query: GetAllBooksQueryDto): Promise<BookInfo[]> {
+    const { user_id, book_user_status: status } = query;
+
+    const queryBuilder = this.bookRepository
       .createQueryBuilder('b')
       .select([
         'b.id as id',
         'b.name as name',
         'b.description as description',
-      ])
-      .getRawMany();
+      ]);
+
+    if (query.user_id && query.book_user_status) {
+      if (status === 'own') {
+        queryBuilder
+          .andWhere('b.user_id = :user_id', { user_id });
+      } else {
+        queryBuilder
+          .leftJoin('user_book_status_link', 'ubsl', 'b.id = ubsl.book_id')
+          .where('ubsl.user_id = :user_id', { user_id })
+          .andWhere('ubsl.status = :status', { status });
+      }
+    }
+
+    return queryBuilder.getRawMany();
   }
 
-  getOne(id: number): Promise<BookInfo> {
+  getOne(id: number): Promise<DetailedBookInfo> {
     return this.bookRepository
       .createQueryBuilder('b')
       .select([
@@ -43,7 +59,13 @@ export class BookRepository extends Repository<Book> {
   }
 }
 
-type BookInfo = {
+export type BookInfo = {
+  id: string;
+  name: string;
+  description: string;
+}
+
+type DetailedBookInfo = {
   id: string;
   name: string;
   description: string;

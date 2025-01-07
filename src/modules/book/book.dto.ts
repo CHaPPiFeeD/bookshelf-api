@@ -1,4 +1,5 @@
 import { IsDefined, IsString, MinLength } from 'class-validator';
+import { BookUserStatus } from 'src/entities/user-book-status-link.entity';
 
 
 export class CreateBookDto {
@@ -10,4 +11,9 @@ export class CreateBookDto {
   @IsString()
   @IsDefined()
   description: string;
+}
+
+export class GetAllBooksQueryDto {
+  user_id?: string;
+  book_user_status?: BookUserStatus | 'own';
 }

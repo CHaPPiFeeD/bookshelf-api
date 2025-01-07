@@ -14,7 +14,7 @@ export class UserBookStatusLink {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('varchar')
+  @Column('uuid')
   book_id: string;
 
   @Column('uuid')

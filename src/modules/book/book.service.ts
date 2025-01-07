@@ -1,8 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 
-import { Book } from '../../entities/book.entity';
-import { CreateBookDto } from './dto/create-book.dto';
-import { BookRepository } from 'src/repositories/book.repository';
+import { CreateBookDto, GetAllBooksQueryDto } from './book.dto';
+import { BookInfo, BookRepository } from 'src/repositories/book.repository';
 import { User } from 'src/entities/user.entity';
 
 
@@ -14,8 +13,8 @@ export class BookService {
     private bookRepository: BookRepository,
   ) { }
 
-  getAll(): Promise<Book[]> {
-    return this.bookRepository.getAll();
+  getAll(params: GetAllBooksQueryDto): Promise<BookInfo[]> {
+    return this.bookRepository.getAll(params);
   }
 
   async createBook(user: User, data: CreateBookDto): Promise<string> {
