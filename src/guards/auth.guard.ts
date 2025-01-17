@@ -18,19 +18,20 @@ export class UserCreatingGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
-    if (!token) throw new UnauthorizedException();
 
-    try {
-      const payload = jwt.decode(token);
-      if (!payload) throw new UnauthorizedException();
-      request.remote_user = payload;
-    } catch {
-      throw new UnauthorizedException();
+    if (token) {
+      try {
+        const payload = jwt.decode(token);
+        if (!payload) throw new UnauthorizedException();
+        request.remote_user = payload;
+        const {email, name } = request.remote_user;
+        request.user = await this.userRepository.getOrCreateUser({ email, name });
+        return true;
+      } catch {
+        throw new UnauthorizedException();
+      }
     }
-
-    const { sub, email, name } = request.remote_user;
-    request.user = await this.userRepository.getOrCreateUser({ id: sub, email, name });
-
+    
     return true;
   }
 

@@ -8,8 +8,12 @@ import { GetAllBooksQueryDto } from 'src/modules/book/book.dto';
 
 @Injectable()
 export class BookRepository extends Repository<Book> {
-  @InjectRepository(Book)
-  private bookRepository: Repository<Book>;
+  constructor(
+    @InjectRepository(Book)
+    private bookRepository: Repository<Book>
+  ) {
+    super(bookRepository.target, bookRepository.manager, bookRepository.queryRunner);
+  }
 
   getAll(query: GetAllBooksQueryDto): Promise<BookInfo[]> {
     const { user_id, book_user_status: status } = query;
@@ -20,6 +24,7 @@ export class BookRepository extends Repository<Book> {
         'b.id as id',
         'b.name as name',
         'b.description as description',
+        'b.cover_id as coverId',
       ]);
 
     if (query.user_id && query.book_user_status) {
@@ -53,9 +58,9 @@ export class BookRepository extends Repository<Book> {
       .getRawOne();
   }
 
-  async createAndSave(data: CreateBookData): Promise<void> {
+  createAndSave(data: CreateBookData): Promise<Book> {
     const entity = this.bookRepository.create(data);
-    await this.bookRepository.save(entity);
+    return this.bookRepository.save(entity);
   }
 }
 
@@ -63,6 +68,8 @@ export type BookInfo = {
   id: string;
   name: string;
   description: string;
+  coverid?: string;
+  coverUrl?: string;
 }
 
 type DetailedBookInfo = {

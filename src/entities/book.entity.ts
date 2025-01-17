@@ -15,6 +15,9 @@ export class Book {
   @Column('uuid')
   user_id: string;
 
+  @Column('uuid', { nullable: true })
+  cover_id: string;
+
   @Column('timestamp with time zone', { default: () => 'CURRENT_TIMESTAMP' })
   created_at: string;
 

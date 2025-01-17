@@ -23,4 +23,10 @@ export default () => ({
   client: {
     host: process.env.CLIENT_HOST || 'http://localhost:3000',
   },
+  s3: {
+    accessKeyID: process.env.S3_ACCESS_KEY_ID,
+    accessSecret: process.env.S3_ACCESS_SECRET,
+    region: process.env.S3_REGION,
+    bucket: process.env.S3_BUCKET,
+  },
 });

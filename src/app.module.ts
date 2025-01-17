@@ -15,6 +15,8 @@ import { UserRepository } from './repositories/user.repository';
 import { UserModule } from './modules/user/user.module';
 import { MailModule } from './modules/mail/mail.module';
 import { BookModule } from './modules/book/book.module';
+import { S3Module } from './modules/s3/s3.module';
+import { FileModule } from './modules/file/file.module';
 
 
 @Module({
@@ -49,6 +51,8 @@ import { BookModule } from './modules/book/book.module';
     MailModule,
     BookModule,
     UserModule,
+    S3Module,
+    FileModule,
   ],
   controllers: [],
   providers: [
